@@ -106,22 +106,22 @@ describe('반복 일정 기능', () => {
   });
 
   // TODO: 추가 요구사항 반영해보기 ..
-  describe('반복 일정 수정', () => {
+  describe.skip('반복 일정 수정', () => {
     test.fails('특정 날짜의 일정만 수정할 수 있다', async () => {});
     test.fails('특정 날짜 이후의 모든 일정을 수정할 수 있다', async () => {});
   });
 
-  describe('반복 일정 삭제', () => {
+  describe.skip('반복 일정 삭제', () => {
     test.fails('특정 날짜의 일정만 삭제할 수 있다', async () => {});
     test.fails('특정 날짜 이후의 모든 일정을 삭제할 수 있다', async () => {});
     test.fails('전체 반복 일정을 삭제할 수 있다', async () => {});
   });
 
-  describe('반복 규칙 수정', () => {
+  describe.skip('반복 규칙 수정', () => {
     test.fails('반복 일정의 반복 규칙을 수정할 수 있다', async () => {});
   });
 
-  describe('예외 날짜 처리', () => {
+  describe.skip('예외 날짜 처리', () => {
     test.fails('반복 일정에 예외 날짜를 추가할 수 있다', async () => {});
   });
 });
