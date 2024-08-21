@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -186,14 +186,20 @@ const SearchDialog = ({ searchInfo, onClose }: Props) => {
   const visibleLectures = filteredLectures.slice(0, page * PAGE_SIZE);
   const allMajors = [...new Set(lectures.map((lecture) => lecture.major))];
 
-  const changeSearchOption = (
-    field: keyof SearchOption,
-    value: SearchOption[typeof field]
-  ) => {
-    setPage(1);
-    setSearchOptions({ ...searchOptions, [field]: value });
-    loaderWrapperRef.current?.scrollTo(0, 0);
-  };
+  const changeSearchOption = useCallback(
+    (field: keyof SearchOption, value: SearchOption[typeof field]) => {
+      setPage(1);
+      setSearchOptions((prevOptions) => {
+        const newOptions = { ...prevOptions, [field]: value };
+        if (JSON.stringify(newOptions) !== JSON.stringify(prevOptions)) {
+          loaderWrapperRef.current?.scrollTo(0, 0);
+          return newOptions;
+        }
+        return prevOptions;
+      });
+    },
+    []
+  );
 
   const addSchedule = (lecture: Lecture) => {
     if (!searchInfo) return;
@@ -408,23 +414,7 @@ const SearchDialog = ({ searchInfo, onClose }: Props) => {
                       </Tag>
                     ))}
                   </Wrap>
-                  <Stack
-                    spacing={2}
-                    overflowY='auto'
-                    h='100px'
-                    border='1px solid'
-                    borderColor='gray.200'
-                    borderRadius={5}
-                    p={2}
-                  >
-                    {allMajors.map((major) => (
-                      <Box key={major}>
-                        <Checkbox key={major} size='sm' value={major}>
-                          {major.replace(/<p>/gi, ' ')}
-                        </Checkbox>
-                      </Box>
-                    ))}
-                  </Stack>
+                  <MajorFilterList majors={allMajors} />
                 </CheckboxGroup>
               </FormControl>
             </HStack>
@@ -484,4 +474,32 @@ const SearchDialog = ({ searchInfo, onClose }: Props) => {
   );
 };
 
+// INFO: 체크박스가 있는 필터를 메모이제이션 해서 렌더링 줄임
+const MajorFilter = memo(({ major }: { major: string }) => {
+  return (
+    <Box>
+      <Checkbox size='sm' value={major}>
+        {major.replace(/<p>/gi, ' ')}
+      </Checkbox>
+    </Box>
+  );
+});
+
+const MajorFilterList = ({ majors }: { majors: string[] }) => {
+  return (
+    <Stack
+      spacing={2}
+      overflowY='auto'
+      h='100px'
+      border='1px solid'
+      borderColor='gray.200'
+      borderRadius={5}
+      p={2}
+    >
+      {majors.map((major) => (
+        <MajorFilter major={major} />
+      ))}
+    </Stack>
+  );
+};
 export default SearchDialog;
