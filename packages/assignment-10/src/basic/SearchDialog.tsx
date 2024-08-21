@@ -201,7 +201,7 @@ const SearchDialog = ({ searchInfo, onClose }: Props) => {
     []
   );
 
-  const addSchedule = (lecture: Lecture) => {
+  const addSchedule = useCallback((lecture: Lecture) => {
     if (!searchInfo) return;
 
     const { tableId } = searchInfo;
@@ -217,7 +217,7 @@ const SearchDialog = ({ searchInfo, onClose }: Props) => {
     }));
 
     onClose();
-  };
+  }, []);
 
   useEffect(() => {
     const start = performance.now();
@@ -435,35 +435,10 @@ const SearchDialog = ({ searchInfo, onClose }: Props) => {
               </Table>
 
               <Box overflowY='auto' maxH='500px' ref={loaderWrapperRef}>
-                <Table size='sm' variant='striped'>
-                  <Tbody>
-                    {visibleLectures.map((lecture, index) => (
-                      <Tr key={`${lecture.id}-${index}`}>
-                        <Td width='100px'>{lecture.id}</Td>
-                        <Td width='50px'>{lecture.grade}</Td>
-                        <Td width='200px'>{lecture.title}</Td>
-                        <Td width='50px'>{lecture.credits}</Td>
-                        <Td
-                          width='150px'
-                          dangerouslySetInnerHTML={{ __html: lecture.major }}
-                        />
-                        <Td
-                          width='150px'
-                          dangerouslySetInnerHTML={{ __html: lecture.schedule }}
-                        />
-                        <Td width='80px'>
-                          <Button
-                            size='sm'
-                            colorScheme='green'
-                            onClick={() => addSchedule(lecture)}
-                          >
-                            추가
-                          </Button>
-                        </Td>
-                      </Tr>
-                    ))}
-                  </Tbody>
-                </Table>
+                <VisibleLectureTable
+                  lectures={visibleLectures}
+                  addSchedule={addSchedule}
+                />
                 <Box ref={loaderRef} h='20px' />
               </Box>
             </Box>
@@ -502,4 +477,61 @@ const MajorFilterList = ({ majors }: { majors: string[] }) => {
     </Stack>
   );
 };
+
+// INFO: 검색 결과로 나온 강의 항목을 메모이제이션 해서 렌더링 줄임
+const VisibleLecture = memo(
+  ({
+    lecture,
+    addSchedule,
+  }: {
+    lecture: Lecture;
+    addSchedule: (lecture: Lecture) => void;
+  }) => {
+    return (
+      <Tr>
+        <Td width='100px'>{lecture.id}</Td>
+        <Td width='50px'>{lecture.grade}</Td>
+        <Td width='200px'>{lecture.title}</Td>
+        <Td width='50px'>{lecture.credits}</Td>
+        <Td width='150px' dangerouslySetInnerHTML={{ __html: lecture.major }} />
+        <Td
+          width='150px'
+          dangerouslySetInnerHTML={{ __html: lecture.schedule }}
+        />
+        <Td width='80px'>
+          <Button
+            size='sm'
+            colorScheme='green'
+            onClick={() => addSchedule(lecture)}
+          >
+            추가
+          </Button>
+        </Td>
+      </Tr>
+    );
+  }
+);
+
+const VisibleLectureTable = ({
+  lectures,
+  addSchedule,
+}: {
+  lectures: Lecture[];
+  addSchedule: (lecture: Lecture) => void;
+}) => {
+  return (
+    <Table size='sm' variant='striped'>
+      <Tbody>
+        {lectures.map((lecture, index) => (
+          <VisibleLecture
+            key={`${lecture.id}-${index}`}
+            lecture={lecture}
+            addSchedule={addSchedule}
+          />
+        ))}
+      </Tbody>
+    </Table>
+  );
+};
+
 export default SearchDialog;
