@@ -84,6 +84,7 @@ const PAGE_SIZE = 100;
 
 const cache = new Map();
 
+// INFO: api 중복 호출 시, 먼저 호출된 응답 값을 사용하도록 캐싱
 const fetchWithCache = async (url: string, cacheKey: string) => {
   if (cache.has(cacheKey)) {
     return cache.get(cacheKey); // 이전 요청에서 반환된 Promise를 반환
@@ -100,7 +101,7 @@ const fetchMajors = () => fetchWithCache('/schedules-majors.json', 'majors');
 const fetchLiberalArts = () =>
   fetchWithCache('/schedules-liberal-arts.json', 'liberalArts');
 
-// TODO: 이 코드를 개선해서 API 호출을 최소화 해보세요 + Promise.all이 현재 잘못 사용되고 있습니다. 같이 개선해주세요.
+// INFO: Promise.all이 병렬적으로 수행되도록 수정
 const fetchAllLectures = async () => {
   const results = await Promise.all([
     fetchMajors(),
@@ -138,8 +139,6 @@ const SearchDialog = ({ searchInfo, onClose }: Props) => {
   });
 
   const getFilteredLectures = () => {
-    console.log('get filtered lectures');
-
     const { query = '', credits, grades, days, times, majors } = searchOptions;
     return lectures
       .filter(
@@ -178,6 +177,7 @@ const SearchDialog = ({ searchInfo, onClose }: Props) => {
       });
   };
 
+  // INFO: 검색 조건이 달라질 때만 호출되도록 함
   const filteredLectures = useMemo(
     () => getFilteredLectures(),
     [searchOptions]
