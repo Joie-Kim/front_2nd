@@ -59,7 +59,6 @@ export default function ScheduleDndProvider({ children }: PropsWithChildren) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleDragEnd = useCallback(
     (event: any) => {
-      console.log('hello');
       const { active, delta } = event;
       const { x, y } = delta;
       const [draggedTableId, index] = active.id.split(':');
@@ -84,13 +83,6 @@ export default function ScheduleDndProvider({ children }: PropsWithChildren) {
           DAY_LABELS.length;
         const newDay = DAY_LABELS[newDayIndex];
         const newRange = schedule.range.map((time) => time + moveTimeIndex);
-
-        // Validate newRange to ensure it doesn't go out of bounds
-        // const isValidRange = newRange.every((time) => time > 0 && time <= 24);
-        // if (!isValidRange) {
-        //   console.log('hello validation');
-        //   return schedule; // If invalid, return the original schedule
-        // }
 
         return { ...schedule, day: newDay, range: newRange };
       });

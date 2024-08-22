@@ -22,7 +22,6 @@ const TableContext = createContext<
       tableId: string;
       schedules: Schedule[];
       updateSchedule: (schedules: Schedule[]) => void;
-      // duplicateTable: () => void;
     }
   | undefined
 >(undefined);
@@ -30,9 +29,7 @@ const TableContext = createContext<
 const tableReducer = (state: TableState, action: TableAction): TableState => {
   switch (action.type) {
     case 'UPDATE_SCHEDULES':
-      const test = { ...state, schedules: action.payload.schedules };
-      console.log(test, state);
-      return test;
+      return { ...state, schedules: action.payload.schedules };
     default:
       return state;
   }
@@ -49,11 +46,9 @@ export const useTableContext = () => {
 export const TableProvider = ({
   tableId,
   children,
-  // onDuplicate,
 }: {
   tableId: string;
   children: React.ReactNode;
-  // onDuplicate: (newTableId: string, schedules: Schedule[]) => void;
 }) => {
   const initialSchedules =
     dummyScheduleMap[tableId as keyof typeof dummyScheduleMap] || [];
@@ -65,17 +60,11 @@ export const TableProvider = ({
     dispatch({ type: 'UPDATE_SCHEDULES', payload: { schedules } });
   }, []);
 
-  // const duplicateTable = useCallback(() => {
-  //   const newTableId = `schedule-${Date.now()}`;
-  //   onDuplicate(newTableId, state.schedules); // ScheduleContext에 새로운 테이블 추가
-  // }, [state.schedules, onDuplicate]);
-
   const value = useMemo(
     () => ({
       tableId,
       schedules: state.schedules,
       updateSchedule,
-      // duplicateTable,
     }),
     [tableId, state.schedules, updateSchedule]
   );
