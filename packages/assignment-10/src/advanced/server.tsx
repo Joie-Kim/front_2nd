@@ -8,10 +8,20 @@ import { App } from './App.tsx';
 const app = express();
 const port = 3333;
 
-app.get('*', (req, res) => {
-  const app = ReactDOMServer.renderToString(<App url={req.url}/>);
+const cache = new Map();
 
-  res.send(`
+app.get('*', (req, res) => {
+  const cacheKey = req.url;
+
+  if (cache.get(cacheKey)) {
+    console.log('Cache Hit for', cacheKey);
+    res.send(cache.get(cacheKey));
+    return;
+  }
+
+  const app = ReactDOMServer.renderToString(<App url={req.url} />);
+
+  const html = `
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -23,7 +33,10 @@ app.get('*', (req, res) => {
       <div id="root">${app}</div>
     </body>
     </html>
-  `);
+  `;
+
+  cache.set(cacheKey, html);
+  res.send(html);
 });
 
 app.listen(port, () => {
